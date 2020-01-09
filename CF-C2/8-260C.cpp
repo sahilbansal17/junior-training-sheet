@@ -1,3 +1,7 @@
+/*
+ * Problem Link: https://codeforces.com/contest/260/problem/C
+ */
+
 #include <iostream>
 #include <math.h>
 #include <vector>
@@ -19,6 +23,34 @@ int main () {
     ll minIdx = min_element(a.begin(), a.end()) - a.begin();
     ll minVal = a[minIdx];
 
+    // find the possible min from multiple of them
+    
+    bool toLeft = false;
+    for (int i = 0; i <= x; ++i) {
+        if (a[i] == minVal) {
+            toLeft = true;
+        }
+    }
+    if (a[x] == minVal) {
+        minIdx = x;
+    } else if (!toLeft) {
+        // find the rightmost minIdx, since no more minVals after it
+        for (int i = n - 1; i >= x + 1; --i) {
+            if (a[i] == minVal) {
+                minIdx = i;
+                break;
+            }
+        }
+    } else {
+        // find the leftmost minIdx to x
+        for (int i = x - 1; i >= 0; --i) {
+            if (a[i] == minVal) {
+                minIdx = i;
+                break;
+            }
+        }
+    }
+
     // minimum element does some magic here!
     if (x == minIdx) {
         for (int i = 0; i < n; ++i) {
@@ -29,45 +61,27 @@ int main () {
             }
         }
     } else if (x < minIdx) {
-        int i = 0;
-        ll resulting = 0;
-        while (i != x) {
+        for (int i = 0; i <= x; ++i) {
             a[i] -= (minVal + 1);
-            resulting += (minVal + 1);
-            ++i;
         }
-        a[i] -= (minVal + 1); // i == x
-        resulting += (minVal + 1);
-        ++i;
-        while (i != minIdx) {
-            a[i] -= (minVal);
-            resulting += (minVal);
-            ++i; 
+        for (int i = x + 1; i < minIdx; ++i) {
+            a[i] -= minVal;
         }
-        resulting += minVal; // to maintain at i == minIdx
-        ++i; // i == minIdx;
-        while (i < n) {
+        for (int i = minIdx + 1; i < n; ++i) {
             a[i] -= (minVal + 1);
-            resulting += (minVal + 1);
-            ++i;
         }
-        a[minIdx] = resulting;
+        a[minIdx] = (minIdx - x)*minVal + (n - (minIdx - x))*(minVal + 1);
     } else {
-        ll resulting = 0;
-        for (int idx = minIdx + 1; idx <= x; ++idx) {
-            a[idx] -= (minVal + 1);
-            resulting += (minVal + 1);
+        for (int i = minIdx + 1; i <= x; ++i) {
+            a[i] -= (minVal + 1);
         }
         for (int i = 0; i < minIdx; ++i) {
-            a[i] -= (minVal);
-            resulting += minVal;
+            a[i] -= minVal;
         }
         for (int i = x + 1; i < n; ++i) {
             a[i] -= minVal;
-            resulting += minVal;
         }
-        resulting += minVal; // for minVal itself
-        a[minIdx] = resulting;
+        a[minIdx] = (x - minIdx)*(minVal + 1) + (n - (x - minIdx))*minVal;
     }
 
     for (int i = 0; i < n; ++i) {
